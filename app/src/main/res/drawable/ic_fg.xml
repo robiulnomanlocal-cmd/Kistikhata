@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ফোন আকৃতি, ভেতরে কিস্তির ঘর -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M42,28h24a5,5 0 0 1 5,5v42a5,5 0 0 1 -5,5h-24a5,5 0 0 1 -5,-5v-42a5,5 0 0 1 5,-5z" />
+    <path android:fillColor="#0B5D63"
+        android:pathData="M42,35h24v34h-24z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M45,39h7v7h-7z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M56,39h7v7h-7z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M45,50h7v7h-7z" />
+    <path android:fillColor="#7FC4C8" android:pathData="M56,50h7v7h-7z" />
+    <path android:fillColor="#7FC4C8" android:pathData="M45,61h7v5h-7z" />
+    <path android:fillColor="#7FC4C8" android:pathData="M56,61h7v5h-7z" />
+    <path android:fillColor="#0B5D63"
+        android:pathData="M51,73h6a1.5,1.5 0 0 1 0,3h-6a1.5,1.5 0 0 1 0,-3z" />
+</vector>
