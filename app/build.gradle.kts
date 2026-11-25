@@ -10,8 +10,18 @@ android {
         applicationId = "com.kistikhata.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 7
+        versionName = "7.0"
+    }
+
+    // স্থায়ী চাবি: প্রতিটা নতুন APK আগেরটার উপর সরাসরি আপডেট হবে
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("dpz-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {

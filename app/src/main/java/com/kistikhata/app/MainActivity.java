@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.content.ClipData;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -29,6 +31,7 @@ public class MainActivity extends Activity {
 
     private WebView web;
     private ValueCallback<Uri[]> fileCallback;
+    private Uri cameraUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +70,31 @@ public class MainActivity extends Activity {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
                 try {
+                    String[] types = params.getAcceptTypes();
+                    boolean image = types != null && types.length > 0 && types[0] != null && types[0].startsWith("image");
                     Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
                     pick.addCategory(Intent.CATEGORY_OPENABLE);
-                    pick.setType("*/*");
-                    startActivityForResult(Intent.createChooser(pick, "ব্যাকআপ ফাইল বাছুন"), PICK_FILE);
+                    pick.setType(image ? "image/*" : "*/*");
+                    if (params.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE) {
+                        pick.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    }
+                    Intent chooser = Intent.createChooser(pick, image ? "ছবি তুলুন বা গ্যালারি থেকে বাছুন" : "ফাইল বাছুন");
+                    cameraUri = null;
+                    if (image) {
+                        try {
+                            File dir = new File(getCacheDir(), "photos");
+                            if (!dir.exists()) dir.mkdirs();
+                            File photo = new File(dir, "cam_" + System.currentTimeMillis() + ".jpg");
+                            cameraUri = FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".files", photo);
+                            Intent cam = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            cam.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
+                            cam.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cam});
+                        } catch (Exception ignored) {
+                            cameraUri = null;
+                        }
+                    }
+                    startActivityForResult(chooser, PICK_FILE);
                 } catch (Exception e) {
                     fileCallback = null;
                     return false;
@@ -96,9 +120,19 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_FILE && fileCallback != null) {
             Uri[] result = null;
-            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                result = new Uri[]{data.getData()};
+            if (resultCode == RESULT_OK) {
+                ClipData clip = data != null ? data.getClipData() : null;
+                if (clip != null && clip.getItemCount() > 0) {
+                    result = new Uri[clip.getItemCount()];
+                    for (int i = 0; i < clip.getItemCount(); i++) result[i] = clip.getItemAt(i).getUri();
+                } else if (data != null && data.getData() != null) {
+                    result = new Uri[]{data.getData()};
+                } else if (cameraUri != null) {
+                    File taken = new File(new File(getCacheDir(), "photos"), cameraUri.getLastPathSegment());
+                    if (taken.exists() && taken.length() > 0) result = new Uri[]{cameraUri};
+                }
             }
+            cameraUri = null;
             fileCallback.onReceiveValue(result);
             fileCallback = null;
         }
